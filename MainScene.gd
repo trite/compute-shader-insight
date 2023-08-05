@@ -111,5 +111,11 @@ func _on_get_info_pressed():
 	# Read back the data from the buffer
 	var result = rd.buffer_get_data(test_buffer).to_float32_array()
 
-	$VBox/HBoxBottom/TextEdit.text = str(result)
+	var prefixText = "Shader: " + shader_name + "\n" + \
+		"Local Workgroup Size (x/y/z): (" + str(shader_local_x) + "/" + str(shader_local_y) + "/" + str(shader_local_z) + ")\n" + \
+		"Global Workgroup Size (x/y/z): (" + str(shader_groups_x) + "/" + str(shader_groups_y) + "/" + str(shader_groups_z) + ")\n" + \
+		"Total Iterations: " + str(iterations) + "\n" + \
+		"Result: \n"
+
+	$VBox/HBoxBottom/TextEdit.text = prefixText + str(result)
 
