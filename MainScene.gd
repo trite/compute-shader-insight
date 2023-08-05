@@ -1,13 +1,12 @@
 extends Control
 
-var shaderPath = "res://get_glsl_globals.glsl"
+# var simple_shader_path = "res://get_glsl_globals.glsl"
+# var shader_template_path = "res://get_glsl_globals.glsl-template"
+
+var shaders_folder = "res://shaders/"
+# var shader_name = "NotYetInitialized"
 
 var rd := RenderingServer.create_local_rendering_device()
-var shader := rd.shader_create_from_spirv(load(shaderPath).get_spirv())
-
-var shader_local_x = 5
-var shader_local_y = 1
-var shader_local_z = 1
 
 var shader_groups_x = 1
 var shader_groups_y = 1
@@ -15,7 +14,20 @@ var shader_groups_z = 1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	var shader_files = []
+	var dir = DirAccess.open(shaders_folder)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".glsl"):
+				shader_files.append(file_name)
+			file_name = dir.get_next()
+	else:
+		push_error("Problem loading list of shaders from shaders folder")
+		# print("Problem loading list of shaders from shaders folder")
+
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -23,6 +35,14 @@ func _process(_delta):
 	pass
 
 func _on_get_info_pressed():
+	# var attempt_load = load(temp_shader_name)
+	var attempt_load = load(simple_shader_path)
+	print(attempt_load)
+	var attempt_get_spirv = attempt_load.get_spirv()
+
+
+	var shader := rd.shader_create_from_spirv(attempt_get_spirv)
+
 	# How many iterations are going to be run
 	var iterations = \
 		shader_local_x \
@@ -69,3 +89,26 @@ func _on_get_info_pressed():
 	var result = rd.buffer_get_data(test_buffer).to_float32_array()
 
 	$VBoxContainer/TextEdit.text = str(result)
+
+
+func _on_generate_shader_pressed():
+	var shader_template_content = FileAccess.open(shader_template_path, FileAccess.READ).get_as_text()
+
+	var shader_content = shader_template_content \
+		.replace("{local_size_x}", str(shader_local_x)) \
+		.replace("{local_size_y}", str(shader_local_y)) \
+		.replace("{local_size_z}", str(shader_local_z))
+
+	var now = Time.get_datetime_dict_from_system()
+
+	var now_string = \
+		str(now["year"]) + "-" \
+		+ str(now["month"]) + "-" \
+		+ str(now["day"]) + "_" \
+		+ str(now["hour"]) + "-" \
+		+ str(now["minute"]) + "-" \
+		+ str(now["second"])
+
+	temp_shader_name = temp_shaders_folder + "get_glsl_globals_" + now_string + ".glsl"
+
+	FileAccess.open(temp_shader_name, FileAccess.WRITE).store_string(shader_content)

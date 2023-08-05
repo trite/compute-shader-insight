@@ -1,0 +1,15 @@
+#[compute]
+#version 450
+
+layout(local_size_x = {local_size_x}, local_size_y = {local_size_y}, local_size_z = {local_size_z}) in;
+
+layout(set = 0, binding = 0, std430) restrict buffer TestBuffer {
+  float data[];
+} test_buffer;
+
+// The code we want to execute in each invocation
+void main() {
+  // int global_index = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * local_size_x;
+  // test_buffer.data[global_index] = global_index;
+  test_buffer.data[gl_LocalInvocationIndex] = gl_LocalInvocationIndex;
+}
