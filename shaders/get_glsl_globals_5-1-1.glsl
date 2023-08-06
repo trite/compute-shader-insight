@@ -11,5 +11,5 @@ layout(set = 0, binding = 0, std430) restrict buffer TestBuffer {
 void main() {
   // int global_index = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * local_size_x;
   // test_buffer.data[global_index] = global_index;
-  test_buffer.data[gl_LocalInvocationIndex] = gl_LocalInvocationIndex;
+  test_buffer.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationIndex;
 }
